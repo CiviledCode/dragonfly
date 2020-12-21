@@ -36,4 +36,6 @@ type Living interface {
 	Speed() float64
 	// SetSpeed sets the speed of an entity to a new value.
 	SetSpeed(float64)
+	// Pathfinder returns the current pathfinder to control enemy AI and movement
+	Pathfind()
 }
