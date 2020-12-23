@@ -33,6 +33,8 @@ import (
 	"github.com/df-mc/dragonfly/dragonfly/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/google/uuid"
+	"github.com/sandertv/gophertunnel/minecraft/protocol"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"go.uber.org/atomic"
 	"golang.org/x/text/language"
 	"image/color"
@@ -41,6 +43,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	_ "unsafe"
 )
 
 // Player is an implementation of a player entity. It has methods that implement the behaviour that players
@@ -969,7 +972,16 @@ func (p *Player) UseItemOnBlock(pos world.BlockPos, face world.Face, clickPos mg
 	p.handler().HandleItemUseOnBlock(ctx, pos, face, clickPos)
 
 	ctx.Continue(func() {
-		if activatable, ok := p.World().Block(pos).(block.Activatable); ok {
+		b := p.World().Block(pos)
+		if _, ok := b.(block.CraftingTable); ok {
+			session_writePacket(p.session(), &packet.ContainerOpen{
+				WindowID:          0xff,
+				ContainerType:     1,
+				ContainerPosition: protocol.BlockPos{int32(pos.X()), int32(pos.Y()), int32(pos.Z())},
+			})
+			return
+		}
+		if activatable, ok := b.(block.Activatable); ok {
 			// If a player is sneaking, it will not activate the block clicked, unless it is not holding any
 			// items, in which the block will activated as usual.
 			if !p.Sneaking() || i.Empty() {
@@ -1933,3 +1945,7 @@ func (p *Player) broadcastArmour(int, item.Stack) {
 func format(a []interface{}) string {
 	return strings.TrimSuffix(strings.TrimSuffix(fmt.Sprintln(a...), "\n"), "\n")
 }
+
+//go:linkname session_writePacket github.com/df-mc/dragonfly/dragonfly/session.(*Session).writePacket
+//noinspection ALL
+func session_writePacket(*session.Session, packet.Packet)

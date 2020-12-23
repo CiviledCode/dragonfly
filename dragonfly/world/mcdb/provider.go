@@ -69,7 +69,7 @@ func (p *Provider) initDefaultLevelDat() {
 	p.d.DoDayLightCycle = true
 	p.d.BaseGameVersion = protocol.CurrentVersion
 	p.d.LevelName = "World"
-	p.d.SpawnY = 128
+	p.d.SpawnY = 4
 	p.d.GameType = 1
 	p.d.StorageVersion = 8
 	p.d.Generator = 1

@@ -410,7 +410,7 @@ func (server *Server) createSkin(data login.ClientData) skin.Skin {
 		}
 
 		anim := skin.NewAnimation(animation.ImageWidth, animation.ImageHeight, t)
-		anim.FrameCount = int(animation.Frames)
+		anim.FrameCount = animation.Frames
 		anim.Pix, _ = base64.StdEncoding.DecodeString(animation.Image)
 
 		playerSkin.Animations = append(playerSkin.Animations, anim)

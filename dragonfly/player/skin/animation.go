@@ -33,7 +33,7 @@ type Animation struct {
 
 	// FrameCount is the amount of frames that the animation plays for. Exactly this amount of frames should
 	// be present in the Pix animation data.
-	FrameCount int
+	FrameCount float64
 }
 
 // NewAnimation returns a new animation using the width and height passed, with the type specifying what part
