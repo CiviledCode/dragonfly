@@ -643,6 +643,9 @@ func (s *Session) OpenBlockContainer(pos world.BlockPos) {
 	switch b.(type) {
 	case block.Beacon:
 		containerType = 13
+	case block.CraftingTable:
+		nextID = 0xff
+		containerType = 1
 	}
 	s.writePacket(&packet.ContainerOpen{
 		WindowID:                nextID,

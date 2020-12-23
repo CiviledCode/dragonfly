@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/df-mc/dragonfly/dragonfly"
 	"github.com/df-mc/dragonfly/dragonfly/player/chat"
+	"github.com/df-mc/dragonfly/dragonfly/world/gamemode"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -37,8 +38,10 @@ func main() {
 	}
 
 	for {
-		if _, err := server.Accept(); err != nil {
+		if p, err := server.Accept(); err != nil {
 			return
+		} else {
+			p.SetGameMode(gamemode.Survival{})
 		}
 	}
 }

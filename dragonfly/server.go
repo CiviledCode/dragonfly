@@ -345,6 +345,26 @@ func (server *Server) handleConn(conn *minecraft.Conn) {
 		server.log.Debugf("connection %v failed spawning: %v\n", conn.RemoteAddr(), err)
 		return
 	}
+	err := conn.WritePacket(&packet.CraftingData{
+		Recipes: []protocol.Recipe{
+			&protocol.ShapedRecipe{
+				RecipeID:        "stick",
+				Width:           0,
+				Height:          0,
+				Input:           nil,
+				Output:          nil,
+				UUID:            uuid.UUID{},
+				Block:           "stick",
+				RecipeNetworkID: 1,
+			},
+		},
+		ClearRecipes: true,
+	})
+	if err != nil {
+		_ = server.listener.Disconnect(conn, "Connection timeout.")
+		server.log.Debugf("connection %v couldn't send crafting data: %v\n", conn.RemoteAddr(), err)
+		return
+	}
 	id, err := uuid.Parse(conn.IdentityData().Identity)
 	if err != nil {
 		_ = conn.Close()
