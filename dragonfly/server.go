@@ -348,13 +348,32 @@ func (server *Server) handleConn(conn *minecraft.Conn) {
 	err := conn.WritePacket(&packet.CraftingData{
 		Recipes: []protocol.Recipe{
 			&protocol.ShapedRecipe{
-				RecipeID:        "stick",
-				Width:           0,
-				Height:          0,
-				Input:           nil,
-				Output:          nil,
-				UUID:            uuid.UUID{},
-				Block:           "stick",
+				RecipeID: "stick_wood_recipeId",
+				Width:    1,
+				Height:   2,
+				Input: []protocol.RecipeIngredientItem{
+					{
+						NetworkID:     5,
+						MetadataValue: 32767,
+						Count:         1,
+					},
+					{
+						NetworkID:     5,
+						MetadataValue: 32767,
+						Count:         1,
+					},
+				},
+				Output: []protocol.ItemStack{
+					{
+						ItemType: protocol.ItemType{
+							NetworkID:     320,
+							MetadataValue: 0,
+						},
+						Count: 4,
+					},
+				},
+				UUID:            uuid.MustParse("41af9164-68d1-467b-8505-b865f0ee1017"),
+				Block:           "crafting_table",
 				RecipeNetworkID: 1,
 			},
 		},
