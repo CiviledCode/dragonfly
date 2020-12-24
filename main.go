@@ -35,7 +35,8 @@ func main() {
 	server := dragonfly.New(&config, log)
 	// Alpha increases increase the overall highs and lows
 	// Beta controls how close the highs and lows are together going downwards
-	server.World().Generator(generator.NewVanillaGenerator(11213212, 5, 6, 100, .1, .01))
+	//server.World().Generator(generator.NewVanillaGenerator(11213212, 5, 6, 100, .1, .01))
+	server.World().Generator(generator.Skygrid{})
 	server.CloseOnProgramEnd()
 	if err := server.Start(); err != nil {
 		log.Fatalln(err)
