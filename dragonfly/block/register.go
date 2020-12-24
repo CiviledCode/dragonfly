@@ -86,11 +86,14 @@ func init() {
 	_ = world.RegisterBlock(InvisibleBedrock{}, world.BlockState{Name: "minecraft:invisibleBedrock"})
 	_ = world.RegisterBlock(NoteBlock{}, world.BlockState{Name: "minecraft:noteblock"})
 	_ = world.RegisterBlock(DragonEgg{}, world.BlockState{Name: "minecraft:dragon_egg"})
+	_ = world.RegisterBlock(BoneBlock{Axis: world.X}, world.BlockState{Name: "minecraft:bone_block", Properties: map[string]interface{}{"pillar_axis": world.X.String(), "deprecated": int32(0)}})
+	_ = world.RegisterBlock(BoneBlock{Axis: world.Y}, world.BlockState{Name: "minecraft:bone_block", Properties: map[string]interface{}{"pillar_axis": world.Y.String(), "deprecated": int32(0)}})
+	_ = world.RegisterBlock(BoneBlock{Axis: world.Z}, world.BlockState{Name: "minecraft:bone_block", Properties: map[string]interface{}{"pillar_axis": world.Z.String(), "deprecated": int32(0)}})
 
 	for _, g := range grass.All() {
 		_ = world.RegisterBlock(TallGrass{Type: g}, world.BlockState{Name: "minecraft:tallgrass", Properties: map[string]interface{}{"tall_grass_type": g.Name()}})
 	}
-
+  // Colour block implementations
 	for _, c := range colour.All() {
 		_ = world.RegisterBlock(Carpet{Colour: c}, world.BlockState{Name: "minecraft:carpet", Properties: map[string]interface{}{"color": c.String()}})
 		_ = world.RegisterBlock(Concrete{Colour: c}, world.BlockState{Name: "minecraft:concrete", Properties: map[string]interface{}{"color": c.String()}})
@@ -103,7 +106,7 @@ func init() {
 		}
 
 		for _, d := range world.AllDirections() {
-			_ = world.RegisterBlock(GlazedTerracotta{Colour: c}, world.BlockState{Name: "minecraft:" + colourName + "_glazed_terracotta", Properties: map[string]interface{}{"facing_direction": int32(2 + d)}})
+			_ = world.RegisterBlock(GlazedTerracotta{Colour: c}, world.BlockState{Name: "minecraft:" + colourName + "_glazed_terracotta", Properties: map[string]interface{}{"facing_direction": int32(d)}})
 		}
 
 		_ = world.RegisterBlock(StainedGlass{Colour: c}, world.BlockState{Name: "minecraft:stained_glass", Properties: map[string]interface{}{"color": colourName}})
@@ -111,6 +114,7 @@ func init() {
 		_ = world.RegisterBlock(StainedTerracotta{Colour: c}, world.BlockState{Name: "minecraft:stained_hardened_clay", Properties: map[string]interface{}{"color": colourName}})
 	}
 
+	// Wood implementation
 	for _, w := range wood.All() {
 		if w == wood.Acacia() || w == wood.DarkOak() {
 			for i := 0; i < 3; i++ {
@@ -118,6 +122,11 @@ func init() {
 				_ = world.RegisterBlock(Log{Wood: w, Stripped: true, Axis: world.Axis(i)}, world.BlockState{Name: "minecraft:stripped_" + w.String() + "_log", Properties: map[string]interface{}{"pillar_axis": world.Axis(i).String()}, Version: 17825808})
 			}
 			_ = world.RegisterBlock(Planks{Wood: w}, world.BlockState{Name: "minecraft:planks", Properties: map[string]interface{}{"wood_type": w.String()}, Version: 17825808})
+			for i := 0; i < 2; i++ {
+				for j := 0; j < 2; j++ {
+					_ = world.RegisterBlock(Leaves{Wood: w, Persistent: i != 0, shouldUpdate: j != 0}, world.BlockState{Name: "minecraft:leaves2", Properties: map[string]interface{}{"new_leaf_type": w.String(), "persistent_bit": i != 0, "update_bit": j != 0}, Version: 17825808})
+				}
+			}
 		} else if w == wood.Crimson() || w == wood.Warped() {
 			//TODO: Implement warped wood types
 		} else {
@@ -126,13 +135,39 @@ func init() {
 				_ = world.RegisterBlock(Log{Wood: w, Stripped: true, Axis: world.Axis(i)}, world.BlockState{Name: "minecraft:stripped_" + w.String() + "_log", Properties: map[string]interface{}{"pillar_axis": world.Axis(i).String()}, Version: 17825808})
 			}
 			_ = world.RegisterBlock(Planks{Wood: w}, world.BlockState{Name: "minecraft:planks", Properties: map[string]interface{}{"wood_type": w.String()}, Version: 17825808})
+			for i := 0; i < 2; i++ {
+				for j := 0; j < 2; j++ {
+					_ = world.RegisterBlock(Leaves{Wood: w, Persistent: i != 0, shouldUpdate: j != 0}, world.BlockState{Name: "minecraft:leaves", Properties: map[string]interface{}{"old_leaf_type": w.String(), "persistent_bit": i != 0, "update_bit": j != 0}, Version: 17825808})
+				}
+			}
 		}
 	}
 
-	// TODO: check chest todo
+	// Directional block implementation
 	for _, d := range world.AllDirections() {
+		for i := 0; i < 3; i++ {
+			_ = world.RegisterBlock(CocoaBean{Age: i, Facing: d}, world.BlockState{Name: "minecraft:cocoa", Properties: map[string]interface{}{"age": i, "direction": int32(d)}})
+		}
 		_ = world.RegisterBlock(Chest{Facing: d}, world.BlockState{Name: "minecraft:chest", Properties: map[string]interface{}{"facing_direction": 2 + int32(d)}, Version: 17825808})
 	}
+
+	// Fire implementation
+	for f := 0; f < 16; f++ {
+		_ = world.RegisterBlock(Fire{Age: f, Type: fire.Normal()}, world.BlockState{Name: "minecraft:fire", Properties: map[string]interface{}{"age": f}})
+		_ = world.RegisterBlock(Fire{Age: f, Type: fire.Normal()}, world.BlockState{Name: "minecraft:soul_fire", Properties: map[string]interface{}{"age": f}})
+	}
+
+	// Beetroot/Carrot implementation
+	for g := 0; g < 8; g++ {
+		_ = world.RegisterBlock(BeetrootSeeds{}, world.BlockState{Name: "minecraft:beetroot", Properties: map[string]interface{}{"growth": g}})
+		_ = world.RegisterBlock(Carrot{}, world.BlockState{Name: "minecraft:carrot", Properties: map[string]interface{}{"growth": g}})
+	}
+
+	// Cake implementation
+	for b := 0; b < 7; b++ {
+		_ = world.RegisterBlock(Cake{Bites: b}, world.BlockState{Name: "minecraft:cake", Properties: map[string]interface{}{"bite_counter": b}})
+	}
+
 }
 
 func init() {
@@ -174,7 +209,7 @@ func init() {
 	world.RegisterItem("minecraft:stripped_oak_log", Log{Wood: wood.Oak(), Stripped: true})
 	for _, c := range colour.All() {
 		world.RegisterItem("minecraft:concrete", Concrete{Colour: c})
-		world.RegisterItem("minecraft:concretePowder", ConcretePowder{Colour: c})
+		world.RegisterItem("minecraft:concrete_powder", ConcretePowder{Colour: c})
 		world.RegisterItem("minecraft:stained_hardened_clay", StainedTerracotta{Colour: c})
 		world.RegisterItem("minecraft:carpet", Carpet{Colour: c})
 		world.RegisterItem("minecraft:wool", Wool{Colour: c})
@@ -262,7 +297,7 @@ func init() {
 	world.RegisterItem("minecraft:dark_oak_fence_gate", WoodFenceGate{Wood: wood.DarkOak()})
 	world.RegisterItem("minecraft:crimson_fence_gate", WoodFenceGate{Wood: wood.Crimson()})
 	world.RegisterItem("minecraft:warped_fence_gate", WoodFenceGate{Wood: wood.Warped()})
-	world.RegisterItem("minecraft:wooden_trapdoor", WoodTrapdoor{Wood: wood.Oak()})
+	world.RegisterItem("minecraft:trapdoor", WoodTrapdoor{Wood: wood.Oak()})
 	world.RegisterItem("minecraft:spruce_trapdoor", WoodTrapdoor{Wood: wood.Spruce()})
 	world.RegisterItem("minecraft:birch_trapdoor", WoodTrapdoor{Wood: wood.Birch()})
 	world.RegisterItem("minecraft:jungle_trapdoor", WoodTrapdoor{Wood: wood.Jungle()})
