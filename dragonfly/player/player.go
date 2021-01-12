@@ -36,6 +36,7 @@ import (
 	"go.uber.org/atomic"
 	"golang.org/x/text/language"
 	"image/color"
+	"math"
 	"math/rand"
 	"net"
 	"strings"
@@ -902,6 +903,9 @@ func (p *Player) UseItem() {
 
 	ctx.Continue(func() {
 		switch usable := i.Item().(type) {
+		case item.Releasable:
+			p.usingSince.Store(time.Now().UnixNano())
+			p.updateState()
 		case item.Usable:
 			ctx := &item.UseContext{}
 			if usable.Use(p.World(), p, ctx) {
@@ -950,8 +954,26 @@ func (p *Player) UseItem() {
 func (p *Player) ReleaseItem() {
 	if p.usingItem.CAS(true, false) {
 		p.updateState()
+	} else {
+		it, _ := p.HeldItems()
+		if it.Item() != nil {
+			id, _ := it.Item().EncodeItem()
+			useTime := p.usingSince.Load()
+			if id == 261 && useTime != 0 {
+				p.usingSince.Store(0)
 
-		// TODO: Release items such as bows.
+				var yaw float64
+				if p.Yaw() > 180 {
+					yaw = 360
+				}
+
+				diff := useTime / 20
+				baseForce := math.Min((math.Pow(float64(diff), 2)+float64(diff*2))/3, 1)
+
+				p.PlaySound(sound.BowShoot{})
+				p.World().AddEntity(entity.NewArrow(p.Position().Add(mgl64.Vec3{0, p.EyeHeight(), 0}), entity.DirectionVector(p), yaw-p.Yaw(), -p.Pitch(), baseForce >= 1))
+			}
+		}
 	}
 }
 

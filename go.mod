@@ -5,11 +5,11 @@ go 1.13
 require (
 	github.com/cespare/xxhash v1.1.0
 	github.com/df-mc/goleveldb v1.1.8
+	github.com/eren5960/essentialsgo v0.0.0-20201103182341-9cea14738d12
 	github.com/go-gl/mathgl v1.0.0
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/klauspost/compress v1.11.4 // indirect
-	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/pelletier/go-toml v1.8.1
 	github.com/sahilm/fuzzy v0.1.0
 	github.com/sandertv/go-raknet v1.10.0 // indirect
@@ -23,5 +23,4 @@ require (
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5 // indirect
 	golang.org/x/text v0.3.4
 	google.golang.org/appengine v1.6.7 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

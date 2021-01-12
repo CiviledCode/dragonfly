@@ -100,6 +100,9 @@ func init() {
 	world.RegisterItem("minecraft:beetroot", Beetroot{})
 	world.RegisterItem("minecraft:melon", MelonSlice{})
 
+	world.RegisterItem("minecraft:bow", Bow{})
+	world.RegisterItem("minecraft:arrow", Arrow{})
+
 	world.RegisterItem("minecraft:apple", Apple{})
 
 	world.RegisterItem("minecraft:brick", Brick{})

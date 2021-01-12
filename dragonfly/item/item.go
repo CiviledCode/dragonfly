@@ -44,6 +44,9 @@ type Usable interface {
 	Use(w *world.World, user User, ctx *UseContext) bool
 }
 
+// Releasable represents an item that may be released, such as a bow.
+type Releasable interface{}
+
 // Consumable represents an item that may consumed by a player. If an item implements this interface, a player
 // may use and hold the item to consume it.
 type Consumable interface {

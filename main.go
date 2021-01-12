@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/df-mc/dragonfly/dragonfly"
 	"github.com/df-mc/dragonfly/dragonfly/player/chat"
+	"github.com/eren5960/essentialsgo"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -32,6 +33,7 @@ func main() {
 
 	server := dragonfly.New(&config, log)
 	server.CloseOnProgramEnd()
+	essentialsgo.LoadCommands(server, nil)
 	if err := server.Start(); err != nil {
 		log.Fatalln(err)
 	}

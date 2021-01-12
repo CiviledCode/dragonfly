@@ -515,6 +515,8 @@ func (s *Session) ViewSound(pos mgl64.Vec3, soundType world.Sound) {
 			break
 		}
 		pk.SoundType = packet.SoundEventBucketEmptyLava
+	case sound.BowShoot:
+		pk.SoundType = packet.SoundEventBow
 	}
 	s.writePacket(pk)
 }

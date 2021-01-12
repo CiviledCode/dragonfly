@@ -32,3 +32,8 @@ type BucketEmpty struct {
 
 	sound
 }
+
+// BowShoot is a sound played when a bow is shot
+type BowShoot struct {
+	sound
+}
