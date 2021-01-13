@@ -53,3 +53,12 @@ func (w Wool) EncodeBlock() (name string, properties map[string]interface{}) {
 func (w Wool) Hash() uint64 {
 	return hashWool | (uint64(w.Colour.Uint8()) << 32)
 }
+
+// allWool returns wool blocks with all possible colours.
+func allWool() []canEncode {
+	b := make([]canEncode, 0, 16)
+	for _, c := range colour.All() {
+		b = append(b, Wool{Colour: c})
+	}
+	return b
+}

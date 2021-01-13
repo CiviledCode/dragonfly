@@ -30,12 +30,6 @@ type TickerBlock interface {
 	Tick(currentTick int64, pos BlockPos, w *World)
 }
 
-// ItemEntry holds the ID and Meta for an item translation.
-type ItemEntry struct {
-	ID   int32
-	Meta int16
-}
-
 // RegisterItem registers an item with the ID and meta passed. Once registered, items may be obtained from an
 // ID and metadata value using itemByID().
 // If an item with the ID and meta passed already exists, RegisterItem panics.
@@ -60,26 +54,26 @@ var runtimeToOldIds = map[int32]ItemEntry{}
 //lint:ignore U1000 Map is used using compiler directives.
 var oldIdsToRuntime = map[ItemEntry]int32{}
 
+// ItemEntry contains the basis for an item entry in the item entries list, used to translate runtime IDs.
+type ItemEntry struct {
+	Name string
+	Meta int16
+}
+
 // loadItemEntries reads all item entries from the resource JSON, and sets the according values in the runtime ID maps.
 //lint:ignore U1000 Function is used using compiler directives.
 func loadItemEntries() error {
 	var itemJsonEntries []struct {
-		OldData int16 `json:"oldData,omitempty"`
-		ID      int32 `json:"id"`
-		OldID   int32 `json:"oldId,omitempty"`
+		Name string `json:"name"`
+		ID   int32  `json:"id"`
+		Meta int16  `json:"meta"`
 	}
 	err := json.Unmarshal([]byte(resource.ItemEntries), &itemJsonEntries)
 	if err != nil {
 		return err
 	}
 	for _, jsonEntry := range itemJsonEntries {
-		entry := ItemEntry{Meta: jsonEntry.OldData}
-
-		if jsonEntry.OldID == 0 {
-			entry.ID = jsonEntry.ID
-		} else {
-			entry.ID = jsonEntry.OldID
-		}
+		entry := ItemEntry{Name: jsonEntry.Name, Meta: jsonEntry.Meta}
 
 		oldIdsToRuntime[entry] = jsonEntry.ID
 		runtimeToOldIds[jsonEntry.ID] = entry
@@ -87,10 +81,10 @@ func loadItemEntries() error {
 	return nil
 }
 
-// runtimeById returns the runtime ID for an item by it's old ID.
+// runtimeById returns the runtime ID for an item by it's name.
 //lint:ignore U1000 Function is used using compiler directives.
-func runtimeById(id int32, meta int16) int32 {
-	return oldIdsToRuntime[ItemEntry{ID: id, Meta: meta}]
+func runtimeById(entry ItemEntry) int32 {
+	return oldIdsToRuntime[entry]
 }
 
 // idByRuntime returns the old ID for an item by it's runtime ID.

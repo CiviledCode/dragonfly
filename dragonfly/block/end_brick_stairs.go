@@ -75,3 +75,12 @@ func (EndBrickStairs) CanDisplace(b world.Liquid) bool {
 func (s EndBrickStairs) SideClosed(pos, side world.BlockPos, w *world.World) bool {
 	return s.Model().FaceSolid(pos, pos.Face(side), w)
 }
+
+// allEndBrickStairs ...
+func allEndBrickStairs() (stairs []canEncode) {
+	for direction := world.Direction(0); direction <= 3; direction++ {
+		stairs = append(stairs, EndBrickStairs{Facing: direction, UpsideDown: true})
+		stairs = append(stairs, EndBrickStairs{Facing: direction, UpsideDown: false})
+	}
+	return
+}

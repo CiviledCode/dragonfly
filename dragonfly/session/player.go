@@ -418,6 +418,7 @@ func skinToProtocol(s skin.Skin) protocol.Skin {
 		case skin.AnimationBody128x128:
 			protocolAnim.AnimationType = protocol.SkinAnimationBody128x128
 		}
+		protocolAnim.ExpressionType = uint32(animation.AnimationExpression)
 		animations = append(animations, protocolAnim)
 	}
 
@@ -530,10 +531,12 @@ func stackFromItem(it item.Stack) protocol.ItemStack {
 	if it.Empty() {
 		return protocol.ItemStack{}
 	}
-	id, meta := it.Item().EncodeItem()
+	name, meta := world_itemToName(it.Item())
 	return protocol.ItemStack{
 		ItemType: protocol.ItemType{
-			NetworkID:     world_runtimeById(id, meta),
+			NetworkID: world_runtimeById(world.ItemEntry{
+				Name: name,
+			}),
 			MetadataValue: meta,
 		},
 		Count:   int16(it.Count()),
@@ -550,11 +553,23 @@ func instanceFromItem(it item.Stack) protocol.ItemInstance {
 }
 
 // stackToItem converts a network ItemStack representation back to an item.Stack.
-func stackToItem(it protocol.ItemStack) item.Stack {
-	entry := world_idByRuntime(it.NetworkID, it.MetadataValue)
-	t, ok := world_itemByID(entry.ID, entry.Meta)
+func stackToItem(it protocol.ItemStack, useFoundMetadataFirst bool) item.Stack {
+	entry := world_idByRuntime(it.NetworkID)
+	var meta int16
+	var oppositeMeta int16
+	if useFoundMetadataFirst {
+		meta = entry.Meta
+		oppositeMeta = it.MetadataValue
+	} else {
+		meta = it.MetadataValue
+		oppositeMeta = entry.Meta
+	}
+	t, ok := world_itemByName(entry.Name, meta)
 	if !ok {
-		t = block.Air{}
+		t, ok = world_itemByName(entry.Name, oppositeMeta)
+		if !ok {
+			t = block.Air{}
+		}
 	}
 	//noinspection SpellCheckingInspection
 	if nbter, ok := t.(world.NBTer); ok && len(it.NBTData) != 0 {
@@ -593,13 +608,21 @@ const (
 //noinspection ALL
 func world_itemByID(id int32, meta int16) (world.Item, bool)
 
+//go:linkname world_itemByName github.com/df-mc/dragonfly/dragonfly/world.itemByName
+//noinspection ALL
+func world_itemByName(name string, meta int16) (world.Item, bool)
+
+//go:linkname world_itemToName github.com/df-mc/dragonfly/dragonfly/world.itemToName
+//noinspection ALL
+func world_itemToName(it world.Item) (name string, meta int16)
+
 //go:linkname world_runtimeById github.com/df-mc/dragonfly/dragonfly/world.runtimeById
 //noinspection ALL
-func world_runtimeById(id int32, meta int16) int32
+func world_runtimeById(entry world.ItemEntry) int32
 
 //go:linkname world_idByRuntime github.com/df-mc/dragonfly/dragonfly/world.idByRuntime
 //noinspection ALL
-func world_idByRuntime(id int32, meta int16) world.ItemEntry
+func world_idByRuntime(runtimeId int32) world.ItemEntry
 
 //go:linkname item_id github.com/df-mc/dragonfly/dragonfly/item.id
 //noinspection ALL

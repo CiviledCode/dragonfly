@@ -47,3 +47,12 @@ func (g StainedGlass) EncodeBlock() (name string, properties map[string]interfac
 func (g StainedGlass) Hash() uint64 {
 	return hashStainedGlass | uint64(g.Colour.Uint8())<<34
 }
+
+// allStainedGlass returns stained glass blocks with all possible colours.
+func allStainedGlass() []canEncode {
+	b := make([]canEncode, 0, 16)
+	for _, c := range colour.All() {
+		b = append(b, StainedGlass{Colour: c})
+	}
+	return b
+}

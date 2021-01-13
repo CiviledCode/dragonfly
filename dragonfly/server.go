@@ -113,10 +113,10 @@ func (server *Server) Run() error {
 	server.loadWorld()
 	server.World().Generator(generator.Flat{})
 	server.registerTargetFunc()
-	item_registerVanillaCreativeItems()
 	if err := world_loadItemEntries(); err != nil {
 		return err
 	}
+	item_registerVanillaCreativeItems()
 
 	if err := server.startListening(); err != nil {
 		return err
@@ -137,10 +137,10 @@ func (server *Server) Start() error {
 	server.loadWorld()
 	server.World().Generator(generator.Flat{})
 	server.registerTargetFunc()
-	item_registerVanillaCreativeItems()
 	if err := world_loadItemEntries(); err != nil {
 		return err
 	}
+	item_registerVanillaCreativeItems()
 
 	if err := server.startListening(); err != nil {
 		return err
@@ -448,8 +448,8 @@ func (server *Server) createSkin(data login.ClientData) skin.Skin {
 			t = skin.AnimationBody128x128
 		}
 
-		anim := skin.NewAnimation(animation.ImageWidth, animation.ImageHeight, t)
-		anim.FrameCount = animation.Frames
+		anim := skin.NewAnimation(animation.ImageWidth, animation.ImageHeight, animation.AnimationExpression, t)
+		anim.FrameCount = int(animation.Frames)
 		anim.Pix, _ = base64.StdEncoding.DecodeString(animation.Image)
 
 		playerSkin.Animations = append(playerSkin.Animations, anim)
@@ -484,10 +484,10 @@ func vec64To32(vec3 mgl64.Vec3) mgl32.Vec3 {
 // itemEntries loads a list of all custom item entries of the server, ready to be sent in the StartGame
 // packet.
 func (server *Server) itemEntries() (entries []protocol.ItemEntry) {
-	for runtimeID, name := range world_itemNames() {
+	for _, name := range world_itemNames() {
 		entries = append(entries, protocol.ItemEntry{
 			Name:      name,
-			RuntimeID: int16(runtimeID),
+			RuntimeID: int16(world_runtimeById(world.ItemEntry{Name: name})),
 		})
 	}
 	return
@@ -500,6 +500,10 @@ func item_registerVanillaCreativeItems()
 //go:linkname world_loadItemEntries github.com/df-mc/dragonfly/dragonfly/world.loadItemEntries
 //noinspection all
 func world_loadItemEntries() error
+
+//go:linkname world_runtimeById github.com/df-mc/dragonfly/dragonfly/world.runtimeById
+//noinspection ALL
+func world_runtimeById(entry world.ItemEntry) int32
 
 //go:linkname world_itemNames github.com/df-mc/dragonfly/dragonfly/world.itemNames
 //noinspection all

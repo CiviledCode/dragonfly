@@ -134,3 +134,16 @@ func (f WoodFenceGate) Hash() uint64 {
 func (f WoodFenceGate) Model() world.BlockModel {
 	return model.FenceGate{Facing: f.Facing, Open: f.Open}
 }
+
+// allFenceGates returns a list of all trapdoor types.
+func allFenceGates() (fenceGates []canEncode) {
+	for _, w := range wood.All() {
+		for i := world.Direction(0); i <= 3; i++ {
+			fenceGates = append(fenceGates, WoodFenceGate{Wood: w, Facing: i, Open: false, Lowered: false})
+			fenceGates = append(fenceGates, WoodFenceGate{Wood: w, Facing: i, Open: false, Lowered: true})
+			fenceGates = append(fenceGates, WoodFenceGate{Wood: w, Facing: i, Open: true, Lowered: true})
+			fenceGates = append(fenceGates, WoodFenceGate{Wood: w, Facing: i, Open: true, Lowered: false})
+		}
+	}
+	return
+}

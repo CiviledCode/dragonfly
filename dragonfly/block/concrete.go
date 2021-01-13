@@ -40,3 +40,12 @@ func (c Concrete) EncodeBlock() (name string, properties map[string]interface{})
 func (c Concrete) Hash() uint64 {
 	return hashConcrete | (uint64(c.Colour.Uint8()) << 32)
 }
+
+// allConcrete returns concrete blocks with all possible colours.
+func allConcrete() []canEncode {
+	b := make([]canEncode, 0, 16)
+	for _, c := range colour.All() {
+		b = append(b, Concrete{Colour: c})
+	}
+	return b
+}

@@ -45,3 +45,12 @@ func (t StainedTerracotta) EncodeBlock() (name string, properties map[string]int
 func (t StainedTerracotta) Hash() uint64 {
 	return hashStainedTerracotta | (uint64(t.Colour.Uint8()) << 32)
 }
+
+// allStainedTerracotta returns stained terracotta blocks with all possible colours.
+func allStainedTerracotta() []canEncode {
+	b := make([]canEncode, 0, 16)
+	for _, c := range colour.All() {
+		b = append(b, StainedTerracotta{Colour: c})
+	}
+	return b
+}
