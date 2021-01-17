@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"github.com/df-mc/dragonfly/dragonfly/block"
 	"github.com/df-mc/dragonfly/dragonfly/entity/physics"
 	"github.com/df-mc/dragonfly/dragonfly/entity/state"
@@ -52,15 +51,18 @@ func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 			a.inBlock = true
 		}
 		//TODO: Check if the arrow is going through water or lava for slowdowns
-		fmt.Println("Moved to", currentPoint)
+
+		// Check if the arrow is intersecting with any entities
+		if len(a.World().EntitiesWithin(a.AABB())) > 0 {
+			//TODO: Deal damage to the entity based on velocity and do effects
+		}
 
 		// Store the current position of the area and move the movable entity
 		a.pos.Store(currentPoint)
 		a.move(a, currentPoint, a.World().Viewers(currentPoint))
-		a.pointIndex++
-
 		return currentPoint
 	}
+	a.pointIndex++
 
 	return mgl64.Vec3{}
 }
