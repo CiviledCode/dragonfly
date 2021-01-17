@@ -2,9 +2,9 @@ package entity
 
 import (
 	"fmt"
+	"github.com/df-mc/dragonfly/dragonfly/block"
 	"github.com/df-mc/dragonfly/dragonfly/entity/physics"
 	"github.com/df-mc/dragonfly/dragonfly/entity/state"
-	"github.com/df-mc/dragonfly/dragonfly/math"
 	"github.com/df-mc/dragonfly/dragonfly/world"
 	"github.com/go-gl/mathgl/mgl64"
 	"go.uber.org/atomic"
@@ -13,9 +13,9 @@ import (
 type Arrow struct {
 	velocity, pos atomic.Value
 	yaw, pitch    float64
-	hasTicked     bool
 	points        []mgl64.Vec3
 	pointIndex    int
+	inBlock       bool
 	*MovementComputer
 }
 
@@ -29,29 +29,39 @@ func NewArrow(pos, velocity mgl64.Vec3, yaw, pitch float64, force bool) *Arrow {
 	return a
 }
 
-// tickMovement performs a movement tick on an entity. Velocity is applied and changed according to the values
-// of its drag and gravity.
-// The new position of the entity after movement is returned.
+// tickMovement performs the movement and velocity decreases of the arrow.
+// if the arrow hits a block or is stuck inside of a block, tickMovement will still be called but nothing will happen
 func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
-	if !a.hasTicked {
-		a.hasTicked = true
 
-		velocity := a.velocity.Load().(mgl64.Vec3)
+	// Check if the arrow is stuck in a block
+	if !a.inBlock {
+		// Decrease the velocity by multiplying it by .99
+		velocity := a.Velocity().Mul(.99)
+		a.SetVelocity(velocity)
 
-		start := a.Position()
-		end := start.Add(velocity)
-		a.points = math.BetweenPoints(start, end)
-	} else {
-		if a.pointIndex != len(a.points) {
-			point := a.points[a.pointIndex]
+		//lastPoint := a.points[a.pointIndex - 1]
 
-			a.World().Block(world.BlockPos{int(point.X()), int(point.Y()), int(point.Z())})
-			fmt.Println("Moved to", point)
-			a.pos.Store(a.points[a.pointIndex])
-			a.move(a, a.points[a.pointIndex], a.World().Viewers(a.points[a.pointIndex]))
-			a.pointIndex++
+		//TODO: Calculate the current points location
+
+		// Calculate the current point and update it
+		var currentPoint mgl64.Vec3
+
+		// Check if the current point is a block so we can set inBlock to true, terminating movement calculations
+		blockAtPoint := a.World().Block(world.BlockPos{int(currentPoint.X()), int(currentPoint.Y()), int(currentPoint.Z())})
+		if _, ok := blockAtPoint.(block.Air); !ok {
+			a.inBlock = true
 		}
+		//TODO: Check if the arrow is going through water or lava for slowdowns
+		fmt.Println("Moved to", currentPoint)
+
+		// Store the current position of the area and move the movable entity
+		a.pos.Store(currentPoint)
+		a.move(a, currentPoint, a.World().Viewers(currentPoint))
+		a.pointIndex++
+
+		return currentPoint
 	}
+
 	return mgl64.Vec3{}
 }
 
