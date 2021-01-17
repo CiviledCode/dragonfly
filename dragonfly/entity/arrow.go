@@ -10,11 +10,12 @@ import (
 )
 
 type Arrow struct {
-	velocity, pos atomic.Value
-	yaw, pitch    float64
-	points        []mgl64.Vec3
-	pointIndex    int
-	inBlock       bool
+	velocity, pos              atomic.Value
+	yaw, pitch                 float64
+	points                     []mgl64.Vec3
+	pointIndex                 int
+	inBlock, inEntity          bool
+	entityIntersectionPosition mgl64.Vec3
 	*MovementComputer
 }
 
@@ -33,7 +34,7 @@ func NewArrow(pos, velocity mgl64.Vec3, yaw, pitch float64, force bool) *Arrow {
 func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 
 	// Check if the arrow is stuck in a block
-	if !a.inBlock {
+	if !a.inBlock && a.inEntity {
 		// Decrease the velocity by multiplying it by .99
 		velocity := a.Velocity().Mul(.99)
 		a.SetVelocity(velocity)
@@ -54,6 +55,7 @@ func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 
 		// Check if the arrow is intersecting with any entities
 		if len(a.World().EntitiesWithin(a.AABB())) > 0 {
+			a.inEntity = true
 			//TODO: Deal damage to the entity based on velocity and do effects
 		}
 
@@ -61,6 +63,10 @@ func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 		a.pos.Store(currentPoint)
 		a.move(a, currentPoint, a.World().Viewers(currentPoint))
 		return currentPoint
+	}
+
+	if a.inEntity {
+		// Fill this out to move with the entity in the correct position
 	}
 	a.pointIndex++
 
