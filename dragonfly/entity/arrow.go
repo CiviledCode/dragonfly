@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"github.com/df-mc/dragonfly/dragonfly/entity/physics"
 	"github.com/df-mc/dragonfly/dragonfly/entity/state"
 	"github.com/df-mc/dragonfly/dragonfly/world"
@@ -25,15 +26,17 @@ func NewArrow(pos, velocity mgl64.Vec3, yaw, pitch float64, force bool) *Arrow {
 	a.velocity.Store(velocity)
 	a.yaw = yaw
 	a.pitch = pitch
+	a.pointIndex = 1
+	a.points = make([]mgl64.Vec3, 150)
+	a.points[0] = pos
 	return a
 }
 
 // tickMovement performs the movement and velocity decreases of the arrow.
 // if the arrow hits a block or is stuck inside of a block, tickMovement will still be called but nothing will happen
-func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
-
+func (a *Arrow) tickMovement() {
 	// Check if the arrow is stuck in a block
-	if !a.inBlock && !a.inEntity {
+	if !a.inBlock && !a.inEntity && a.pointIndex < 150 {
 		// Decrease the velocity by multiplying it by .99
 		velocity := a.Velocity().Mul(.99)
 		a.SetVelocity(velocity)
@@ -45,13 +48,15 @@ func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 		// Calculate the current point and update it
 		var currentPoint mgl64.Vec3
 
-		currentPoint = mgl64.Vec3{lastPoint.X() + .2, lastPoint.Y() - .1, lastPoint.Z()}
+		currentPoint = mgl64.Vec3{lastPoint.X() + .5, lastPoint.Y() - .05, lastPoint.Z()}
 
 		/*
 			// Check if the current point is a block so we can set inBlock to true, terminating movement calculations
 			blockAtPoint := a.World().Block(world.BlockPos{int(currentPoint.X()), int(currentPoint.Y()), int(currentPoint.Z())})
 			if _, ok := blockAtPoint.(block.Air); !ok {
 				a.inBlock = true
+			} else if _, ok := blockAtPoint.(block.Lava); ok {
+
 			} else if _, ok := blockAtPoint.(block.Lava); ok {
 
 			}
@@ -64,18 +69,21 @@ func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 			//TODO: Deal damage to the entity based on velocity and do effects
 		}
 
+		fmt.Printf("%f %f %f \n", currentPoint.X(), currentPoint.Y(), currentPoint.Z())
 		// Store the current position of the area and move the movable entity
 		a.pos.Store(currentPoint)
 		a.move(a, currentPoint, a.World().Viewers(currentPoint))
-		return currentPoint
+		a.points[a.pointIndex] = currentPoint
 	}
 
 	if a.inEntity {
 		// Fill this out to move with the entity in the correct position
 	}
 	a.pointIndex++
+}
 
-	return mgl64.Vec3{}
+func (a *Arrow) Tick(_ int64) {
+	a.tickMovement()
 }
 
 func (a *Arrow) Name() string {
