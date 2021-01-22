@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"github.com/df-mc/dragonfly/dragonfly/block"
 	"github.com/df-mc/dragonfly/dragonfly/entity/physics"
 	"github.com/df-mc/dragonfly/dragonfly/entity/state"
 	"github.com/df-mc/dragonfly/dragonfly/world"
@@ -34,23 +33,29 @@ func NewArrow(pos, velocity mgl64.Vec3, yaw, pitch float64, force bool) *Arrow {
 func (a *Arrow) tickMovement(e world.Entity) mgl64.Vec3 {
 
 	// Check if the arrow is stuck in a block
-	if !a.inBlock && a.inEntity {
+	if !a.inBlock && !a.inEntity {
 		// Decrease the velocity by multiplying it by .99
 		velocity := a.Velocity().Mul(.99)
 		a.SetVelocity(velocity)
 
-		//lastPoint := a.points[a.pointIndex - 1]
+		lastPoint := a.points[a.pointIndex-1]
 
 		//TODO: Calculate the current points location
 
 		// Calculate the current point and update it
 		var currentPoint mgl64.Vec3
 
-		// Check if the current point is a block so we can set inBlock to true, terminating movement calculations
-		blockAtPoint := a.World().Block(world.BlockPos{int(currentPoint.X()), int(currentPoint.Y()), int(currentPoint.Z())})
-		if _, ok := blockAtPoint.(block.Air); !ok {
-			a.inBlock = true
-		}
+		currentPoint = mgl64.Vec3{lastPoint.X() + .2, lastPoint.Y() - .1, lastPoint.Z()}
+
+		/*
+			// Check if the current point is a block so we can set inBlock to true, terminating movement calculations
+			blockAtPoint := a.World().Block(world.BlockPos{int(currentPoint.X()), int(currentPoint.Y()), int(currentPoint.Z())})
+			if _, ok := blockAtPoint.(block.Air); !ok {
+				a.inBlock = true
+			} else if _, ok := blockAtPoint.(block.Lava); ok {
+
+			}
+		*/
 		//TODO: Check if the arrow is going through water or lava for slowdowns
 
 		// Check if the arrow is intersecting with any entities
